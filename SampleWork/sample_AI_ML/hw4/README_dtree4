@@ -1,0 +1,47 @@
+#How to run:
+    type command as follow:
+       python dtree4.py
+    make sure the data "dataset.csv" is in the same dir
+
+#What does the code do:
+    1.train a decision tree through the data
+    2.print out the decision tree
+    2.calculate the training dataset error
+    3.calculate the LOOCV error
+
+#Sample out put:
+The tree structure after learning from all example:
+Pat 's children ==============
+None F
+Full Hun
+Some T
+Hun 's children ==============
+T Type
+F F
+Type 's children ==============
+Burger T
+Thai Fri
+French T
+Italian F
+Fri 's children ==============
+T T
+F F
+Training Set Error Rate: 0.0
+
+
+Now do LOOCV :
+leave Example 1 out: real class - T ,by DTree - T
+leave Example 2 out: real class - F ,by DTree - T
+leave Example 3 out: real class - T ,by DTree - T
+leave Example 4 out: real class - T ,by DTree - F
+leave Example 5 out: real class - F ,by DTree - T
+leave Example 6 out: real class - T ,by DTree - T
+leave Example 7 out: real class - F ,by DTree - F
+leave Example 8 out: real class - T ,by DTree - T
+leave Example 9 out: real class - F ,by DTree - T
+leave Example 10 out: real class - F ,by DTree - T
+leave Example 11 out: real class - F ,by DTree - F
+leave Example 12 out: real class - T ,by DTree - F
+LOOCV Error Rate: 0.5
+
+More detail could be found in the source code

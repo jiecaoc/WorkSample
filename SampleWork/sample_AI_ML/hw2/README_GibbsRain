@@ -1,0 +1,11 @@
+How to compile the file:
+     In your Term, type "python GibbsRain.py"
+
+How to run the program:
+     program would ask you to type "sumSteps" as the times of iteration,
+     type it and the program will print the value of P(r|s,w)
+
+What does the program do:
+     Using Gibbs sampling to produce the approximate value of P(r|s,w)
+     The source code is well-documented, detail explanation could be found
+     in the source file

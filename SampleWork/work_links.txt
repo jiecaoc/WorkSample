@@ -1,0 +1,11 @@
+Mathematica Package, including OOPFramework.m TextUtilities.m etc.
+	https://github.com/MathCraft/MathCraftAddOn
++ a OOP framework for mathematica programming language:
++ a Mathematica implementation for diff (unix)
+	Link: https://github.com/MathCraft/MathCraftAddOn/tree/master/MathCraftAddOn/MathCraftAddOn
+	
+A website stores part of the articles and translations
+	http://www.mathcraft.org/post/
+	http://www.mathcraft.org/wiki/
+
+I have also written a lot of code regarding to natural language processing which is for internal use in Wolfram Research.

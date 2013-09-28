@@ -1,0 +1,27 @@
+How to compile the file:
+     Before running the program, make sure you have installed numpy    
+     In your Term, type "python SmoothHMM.py"
+
+How to run the program:
+     Follow the instruction of the program, an example may as
+     following:
+
+     n = 5
+     Input the evidence sequence:1 0 1 0 1
+
+     Then the program will give the result:
+
+     P(X_1=T|e1:5) = 0.38639
+     P(X_2=T|e1:5) = 0.32400
+     P(X_3=T|e1:5) = 0.32728
+     P(X_4=T|e1:5) = 0.40699
+     P(X_5=T|e1:5) = 0.71536
+
+
+What does the program do:
+     Compute the smoothed estimates of X_t , t = 1, ..., n 
+     given evidence e_{1:T}, and it will print 
+     P(X_t=T|e1:n)  for all t 
+
+     It basically follows the algorithm described in AIMA 
+

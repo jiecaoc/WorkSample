@@ -1,0 +1,12 @@
+#How to run:
+     type:
+	python perceptron.py
+     make sure "dataset.csv" should be in the same dir
+
+#What does it do:
+     1.create a perceptron with N inputs, several hidden layers and M outputs,
+       in this case, N = 10, M = 1, and no hidden layer
+     2.test training data
+     3.LOOCV test
+
+I have written a general class BPNN, which make it trival to create BPNN of ant dimension.

@@ -1,0 +1,12 @@
+#How to run:
+     type the following:
+        python dlist2.py
+     make sure "dataset.csv" is in the same dir
+
+#What does it do:
+     1.train the 2-dlist through the dataset
+     2.show the dlist
+     3.test the training dataset
+     3.LOOCV test
+
+I have written most parts as classes, so it is easy to build new code using them

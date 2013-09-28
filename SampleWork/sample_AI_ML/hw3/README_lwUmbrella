@@ -1,0 +1,40 @@
+How to run:
+python lwUmbrella.py numSamples numSteps evidence_sequence
+
+
+Example:
+python lwUmbrella.py 1000 10 1111100000
+
+
+Output:
+P(R_10 = T|u_1:10) = 0.0419
+P(R_10 = F|u_1:10) = 0.9581
+
+P(R_10 = T|u_1:10) = 0.0261
+P(R_10 = F|u_1:10) = 0.9739
+
+P(R_10 = T|u_1:10) = 0.0670
+P(R_10 = F|u_1:10) = 0.9330
+
+P(R_10 = T|u_1:10) = 0.0415
+P(R_10 = F|u_1:10) = 0.9585
+
+P(R_10 = T|u_1:10) = 0.0724
+P(R_10 = F|u_1:10) = 0.9276
+
+P(R_10 = T|u_1:10) = 0.0556
+P(R_10 = F|u_1:10) = 0.9444
+
+P(R_10 = T|u_1:10) = 0.0618
+P(R_10 = F|u_1:10) = 0.9382
+
+P(R_10 = T|u_1:10) = 0.0866
+P(R_10 = F|u_1:10) = 0.9134
+
+P(R_10 = T|u_1:10) = 0.1049
+P(R_10 = F|u_1:10) = 0.8951
+
+P(R_10 = T|u_1:10) = 0.0578
+P(R_10 = F|u_1:10) = 0.9422
+
+After running 10 time, the varience of estimates is 0.00048

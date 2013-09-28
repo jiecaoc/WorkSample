@@ -1,0 +1,396 @@
+from classes import *
+from utils import *
+class CellTest:
+    """
+    CellTest test only one attribute,
+    eg: ctest = CellTest(A) only test whether
+        an example, say eg's value of A attr is in A's values set 
+        A is an instance of class Attribute
+    """
+    def __init__(self, att, flag=True):
+        # if att is a string
+        # test always return the value att
+        if type(att) == type('ss'):
+            A = Attribute('const')
+            A.addValue(att)
+            att = A
+        self.flag = flag
+        self.formula = att
+        
+    def test(self, eg):
+        key = self.formula.key()
+        if key == 'const':
+            return True
+        return (eg.getValue(key) in self.formula.values()) ^ (not self.flag)
+
+    def __str__(self):
+        return self.formula.key() + " " + reduce(lambda x,y: x+y, self.formula.values())
+
+class Test:
+    """
+    the test is represented as
+        (!flag) ^ (ct1 /\ ct2 /\ ct3 /\ ... /\ ctn)
+    in principle, it can represent any test
+    """
+    def __init__(self, ctest, flag=True):
+        self.ctestList = []
+        self.ctestList.append(ctest)
+        self.flag = flag
+
+    def addCTest(self, ctest):
+        self.ctestList.append(ctest)
+
+    def test(self, eg):
+        f = lambda ctest: ctest.test(eg)
+        ans = map(f, self.ctestList)
+        f = lambda x, y: x & y
+        ans = reduce(f, ans)
+        if self.flag:
+            return ans
+        else:
+            return not ans
+    def __str__(self):
+        ls = map(lambda x: x.__str__() + ", ", self.ctestList)
+        return reduce(lambda x,y: x + y, ls)
+
+class DList:
+    def __init__(self, test, classification):
+        self.test = test
+        self.next = None
+        # classification when test return True
+        self.classification = classification
+        
+    def updateNext(self, dlist):
+        self.next = dlist
+        
+    def makeDecision(self, eg):
+        if self.test(eg):
+            return self.classification
+        else:
+            dlist = self.next
+            return dlist.makeDecision(eg)
+    def show(self):
+        """ print the DList """
+        print self.test, "==>", self.classification, ", otherwise"
+        if self.next:
+            self.next.show()
+
+def selectTest(attris, examples):
+    """ 
+    create a test that best meet our need
+    a little bit tricky to do
+    """
+    if len(attris) == 1:
+        # can't find a legal test
+        return 'Failed!'
+    A = argmax_importance(attris, examples, examples)
+    f = lambda v: [eg.getValue('classification') for eg in examples 
+                   if eg.getValue(A.key()) == v]
+    TFLists = map(f, A.values())
+    ls = map(countTF, TFLists)
+    ls = map(lambda x: (x[0]+0.0)/sum(x), ls)
+    ls = map(B, ls)
+    m = min(ls)
+    record = 0
+    for i in range(len(ls)):
+        if ls[i] == m:
+            record = i
+            break
+    key = A.key()
+    v = A.values()[record]
+    A.clearValues()
+    A.addValue(v)
+    # if is fully classified,
+    if m == 0:
+        # return [class, ctest]
+        return [TFLists[record][0], CellTest(A)]
+    egs = [eg for eg in examples if eg.getValue(key) == v]
+    newatts = [att for att in attris if att != key]
+    test = selectTest(newatts, egs, egs)
+    return [test[0], CellTest(A)].extend(test[1:])
+    
+
+def DList_Learning(examples, NTests=4):
+    if len(examples) == 0:
+        # create test that always return 'F'
+        test = Test(CellTest('F'))
+        return DList(test, 'F')
+    class_ctests = selectTest(attris, examples)
+    classification = class_ctests[0]
+    
+    test =  Test(class_ctests[1])
+    for ct in class_ctests[2:]:
+        test.addCTest(ct)
+    if (test == None):
+        return None
+    dlist = DList(test, classification)
+    re_egs = [eg for eg in examples if not test.test(eg)]
+    dlist.updateNext(DList_Learning(re_egs))
+    return dlist
+
+def PluralityValue(egs):
+    """
+    return the most common classification in egs
+    """
+    values = [eg.getValue('classification')
+             for eg in egs]
+    d = {}
+    for v in values:
+        d[v] = 0
+    for v in values:
+        d[v] = d[v] + 1
+    m = max(d.values())
+    if m * 2 == len(values):
+        return 'T'
+    for v in values:
+        if d[v] == m:
+            return v
+
+
+    
+        
+def DTree_Learning(examples, attris, parent_examples, depth):    
+    """
+    Learn the decision tree, under the depth limit
+    """
+    # test whether examples are empty
+    if len(examples) == 0:
+        A = Attribute('classification')
+        A.addValue(PluralityValue(parent_examples))
+        return Tree(A)
+
+    # test whether all classifications are same
+    classifications = Set([eg.getValue('classification') 
+                           for eg in examples])
+    if len(classifications) == 1:
+        A = Attribute('classification')
+        for v in classifications:
+            A.addValue(v)
+        return Tree(A)
+
+    # test whether attris are empty, note 'classification' always exists
+    if len(attris) == 1:
+        A = Attribute('classification')
+        A.addValue(PluralityValue(examples))
+        return Tree(A)
+    
+    # if exceed the depth limit
+    if depth == 0:
+        A = Attribute('classification')
+        A.addValue(PluralityValue(examples))
+        return Tree(A)
+        
+    
+    # regular work                    
+    A = argmax_importance(attris, examples, globalExamples)
+    
+    # create a new tree with root A
+    tree = Tree(A)
+    newAttris = [a for a in attris]
+    newAttris.remove(A.key())
+#    print A.key()
+#    print A.values()
+#    print ' =============== '
+    for v in A.values():
+        exs = [e for e in examples if e.getValue(A.key()) == v]
+        subtree = DTree_Learning(exs, newAttris, examples, depth - 1)
+        tree.addChild(v, subtree)
+    return tree
+
+
+            
+
+def printTree(tree):
+    """
+    print the Desition Tree in a readable way
+    """
+ #   print tree
+    if tree.getAttr() == 'classification':
+        print tree.getClassValue()
+        return 
+    print tree, '\'s children =============='
+    Children = tree.getChildrenList()
+#    print Children
+    for item in Children:
+        if item[1].getAttr() != 'classification':
+            print item[0], item[1]
+        else:
+            print item[0], item[1].getClassValue()
+    for item in Children:
+        if item[1].getAttr() != 'classification':
+            printTree(item[1])
+
+def ErrorLOOCV(examples, attris):
+    errorCount = 0
+    for i in range(len(examples)):
+        tmp = [eg for eg in examples]
+        tmp.remove(examples[i])
+        tree = DTree_Learning(tmp, attris, tmp, 5)
+        a = examples[i].getValue('classification')
+        b = tree.makeDecision(examples[i])
+        print 'leave Example', i+1, 'out:','real class -', a, ',by DTree -', b
+        if a != b: 
+            errorCount = errorCount + 1
+    return (errorCount + 0.0) / len(examples)
+
+
+
+
+
+#=================main ===============
+
+examples = importData('dataset.csv')
+globalExamples = examples
+#=====Training set error rate===============
+tree = DTree_Learning(examples, attris, examples, 4)
+print "The tree structure after learning from all example:"
+printTree(tree)
+errorCount = 0
+for i in range(len(examples)):
+    a = tree.makeDecision(examples[i])
+    b = examples[i].getValue('classification')
+    if a != b:
+        errorCount = errorCount + 1
+print "Training Set Error Rate:", (errorCount + 0.0) / len(examples)
+print '\n'
+#======LOOCV error rate======================
+print "Now do LOOCV :"
+tree = DTree_Learning(examples, attris, examples, 4)
+errorRate = ErrorLOOCV(examples, attris)
+print 'LOOCV Error Rate:', errorRate
+
+from dlist2 import *
+from utils import *
+from classes import *
+
+# class Test:
+#     def __init__(self, v):
+#         self.value = v
+#     def test(self, v):
+#         return self.value + v
+
+# f = lambda x: x.test(1)
+# ls = [Test(1), Test(2), Test(4)]
+# print map(f, ls)
+
+examples = importData('dataset.csv')
+# A = Attribute('Alt')
+# A.addValue('T')
+# A.addValue('F')
+# ctest1 = CellTest(A)
+# print ctest1
+# A = Attribute('Bar')
+# A.addValue('T')
+# ct2 = CellTest(A)
+# print ct2
+# T = Test(ctest1)
+# T.addCTest(ct2)
+# print T
+
+dlist = DList_Learning(examples) 
+dlist.show()
+
+# key = 'Pat'
+# attris.remove(key)
+# egs = [eg for eg in examples if eg.getValue(key) != 'Some']
+# key = 'Hun'
+# attris.remove(key)
+# egs = [eg for eg in egs if eg.getValue(key) != 'F']
+# for e in egs:
+#     print e
+# test = selectTest(attris, egs)
+# for x in test:
+#     print x
+# for eg in examples:
+#     print eg
+#     print T.test(eg)
+# some common functions and varibles that will be 
+# shared in different program
+import csv
+import math
+from classes import *
+attris = ['Alt', 'Bar', 'Fri', 'Hun', 'Pat', 'Price', 'Rain', 'Res', 'Type', 'Est', 'classification']
+
+def importData(file):
+    """
+    create examples from csv format file
+    input: file name
+    output: examples
+    """
+    with open(file,'rb') as csvfile:
+	datareader = csv.reader(csvfile, delimiter = ',', quotechar='|')
+        examples = []
+	for row in datareader:
+            pairs = []
+            for i in range(len(row)):
+                row[i] = row[i].replace(" ","")
+                pairs.append((attris[i], row[i]))
+            examples.append(Example(pairs))
+    #globalExamples = examples
+    return examples
+
+def countTF(ls):
+    """ 
+    input: a list, element in {T,F},
+    output: (#T, #F)
+    """
+    all = len(ls)
+    ct = 0
+    for x in ls:
+        if x == 'T':
+            ct = ct + 1
+    return (ct, all - ct)
+
+def B(p):
+    """ entropy of Boolean r.v."""
+    if (p == 0 or p == 1):
+        return 0
+    return -(p * math.log(p) + (1 - p) * math.log(1 - p))
+
+def GainInfo(a, egs):
+    """
+    calc Gain(a) = B(p/(p+n)) - Remainder(a)
+    see AIMA page 704
+    """
+    
+    dic = {}
+    for eg in egs:
+        v = eg.getValue(a)
+        dic[v] = []
+    for eg in egs:
+        v = eg.getValue(a)
+        dic[v].append(eg.getValue('classification'))
+#    print dic
+    
+    ls = map(countTF, dic.values())
+#    print ls
+    f = lambda x, y: (x[0] + y[0], x[1] + y[1])
+    tot = reduce(f, ls)
+#    print tot
+    remainder = 0
+    for x in ls:
+        remainder = remainder + (sum(x)+ 0.0) / sum(tot) \
+                    * B((x[0] + 0.0) / sum(x))
+
+    return B((tot[0] + .0) / sum(tot)) - remainder
+
+
+def argmax_importance(attris, examples, globalExamples):
+    """
+    return the most important attribute in attris,
+    use the entropy method
+    """
+    GainInfos = [ GainInfo(a, examples) for a in attris if a != 'classification']
+    m = max(GainInfos)
+    for i in range(len(attris) - 1):
+        if GainInfos[i] == m:
+            key = attris[i]
+            break
+    A = Attribute(key)
+    values = []
+    for eg in globalExamples:
+        v = eg.getValue(key)
+        if v not in values:
+            values.append(v)
+            A.addValue(v)
+    return A

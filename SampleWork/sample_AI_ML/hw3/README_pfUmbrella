@@ -1,0 +1,45 @@
+How to run:
+python pfUmbrella.py numSamples numSteps evidence_sequence
+
+
+Example:
+python pfUmbrella.py 100 10 1111100000
+
+
+Output:
+P(R_10 = T|u_1:10) = 0.0400
+P(R_10 = F|u_1:10) = 0.9600
+
+P(R_10 = T|u_1:10) = 0.0500
+P(R_10 = F|u_1:10) = 0.9500
+
+P(R_10 = T|u_1:10) = 0.0800
+P(R_10 = F|u_1:10) = 0.9200
+
+P(R_10 = T|u_1:10) = 0.0200
+P(R_10 = F|u_1:10) = 0.9800
+
+P(R_10 = T|u_1:10) = 0.0300
+P(R_10 = F|u_1:10) = 0.9700
+
+P(R_10 = T|u_1:10) = 0.0700
+P(R_10 = F|u_1:10) = 0.9300
+
+P(R_10 = T|u_1:10) = 0.0700
+P(R_10 = F|u_1:10) = 0.9300
+
+P(R_10 = T|u_1:10) = 0.0400
+P(R_10 = F|u_1:10) = 0.9600
+
+P(R_10 = T|u_1:10) = 0.0100
+P(R_10 = F|u_1:10) = 0.9900
+
+P(R_10 = T|u_1:10) = 0.1000
+P(R_10 = F|u_1:10) = 0.9000
+
+After running 10 time, the varience of estimates is 0.00073
+
+PS: This code may not implemented in the most efficient way, if numSamples = 1000,
+    it may take around 10 secs to get the result.
+    Basically, I'm not using the best way to implement Weighted_Sample(N, S, W), 
+    I just use the most simple way

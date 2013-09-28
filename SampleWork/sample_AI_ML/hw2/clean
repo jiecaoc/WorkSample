@@ -1,0 +1,5 @@
+#!/bin/bash
+rm -f *~
+rm -f *.aux
+rm -f *.dvi
+rm -f *.log

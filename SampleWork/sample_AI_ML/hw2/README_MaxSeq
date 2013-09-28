@@ -1,0 +1,21 @@
+How to compile the file:
+     Before running the program, make sure you have installed numpy    
+     In your Term, type "python MaxSeq.py"
+
+How to run the program:
+     Follow the instruction of the program, an example may as
+     following:
+
+     n = 4
+     Input the evidence sequence: 1 0 1 0
+
+     Then the program will give the result:
+     
+     [1, 0, 1, 0]
+     
+
+What does the program do:
+     Find the most likely sequence of states X_{1:t} given evidence e_{1:t}
+     Detailed implementation could be found in the source code
+     It basically follows the idea in AIMA 
+
