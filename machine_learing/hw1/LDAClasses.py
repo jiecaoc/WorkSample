@@ -32,7 +32,7 @@ class Classifier:
         return best[0]
   
   
-    def training(self, trainData, mode = 'diag'):
+    def training(self, trainData, mode = 'diag', subSpaceDim = 2):
         # num of classes
         K = len(trainData)
         # num of features
@@ -48,15 +48,23 @@ class Classifier:
         f = lambda k: len(trainData[k]) * np.dot( mk[k] - m, (mk[k] - m).transpose() )
         S_B = reduce(ut.add, [f(k) for k in range(1, K - 1)])
         # construct S_W
+        S_W = []
+        Sk = range(K + 1)
         if mode == 'diag':
             S_W = np.diag([1] * D)
+        else:
+            g = lambda x, y: np.dot((x - y), (x - y).transpose())
+            for k in range(1, K + 1 ):
+                Sk[k] = reduce(ut.add, [g(ut.ls2Vec(x), mk[k]) for x in trainData[k]])
+                      
+            S_W = reduce(ut.add, Sk[1:])
         #
-        [egs, vecs] = np.linalg.eigh(S_B)
+        [egs, vecs] = np.linalg.eigh(np.dot(np.linalg.inv(S_W), S_B))
         # print "egs\n", egs
-        # we alway chose the two greatest eigenvlues
-        # which means D features will be projected into 2 features
-        pos = ut.getMaxPos(egs)
-        W = np.dot(np.linalg.inv(S_W), np.array(vecs[:, (pos-1):(pos+1)]))
+        # we alway chose the subSpaceDim greatest eigenvlues
+        # which means D features will be projected into subSpaceDim features
+        pos = ut.getMaxPos(egs, subSpaceDim)
+        W = ut.arrayExtract(vecs, pos)
 
         # construct the test function
         func = lambda v: np.dot(W.transpose(), ut.ls2Vec(v))

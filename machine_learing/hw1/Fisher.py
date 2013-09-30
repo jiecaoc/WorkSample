@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon Sep 30 00:23:57 2013
+
+@author: jiecaoc
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Sun Sep 29 01:34:31 2013
 
 @author: Jiecao Chen (jieca001@umn.edu)
@@ -21,7 +28,7 @@ def cross_validation(crossData, subDim):
     for i in range(num_cross):
         cl = lda.Classifier()
         # set S_W as diag matrix I
-        cl.training(crossData[i][0], 'diag', subDim)
+        cl.training(crossData[i][0], 'fisher', subDim)
         for k in range(1, len(crossData[i][1]) + 1):
             for x in crossData[i][1][k]:
                 totNum = totNum + 1
@@ -35,12 +42,10 @@ if len(sys.argv) != 3:
     print "input error"
     exit()
 fileName = sys.argv[1]
-
 if fileName == "Iris.csv":
     subDim = 2
 else:
     subDim = 7
-    
 num_cross = int(sys.argv[2])
 # import data
 # since the date in the file are in order

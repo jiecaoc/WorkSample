@@ -71,13 +71,14 @@ def getMean(listOfFeatures, mode = 'list'):
     else:
         return np.array([tmp]).transpose()
 
-def getMaxPos(ls):
+def getMaxPos(ls, num = 1):
     """
         given a list,
         return the position of max elememt
     """
-    return max( zip(ls, range(len(ls))) )[1]
-    
+    tmp = sorted(zip(ls, range(len(ls))), key = lambda x: -x[0])
+    tmp = map(lambda x: x[1], tmp)
+    return tmp[: num]
 
 
 
@@ -107,6 +108,14 @@ def makeDataRandom(aList):
             aList[b] = tmp
     return aList
     
+def arrayExtract(arr, ls):
+    
+    return np.array([arr[:,i].tolist() for i in ls]).transpose()
+        
+        
+
 # print makeDataRandom([1,2,3,4])
 # test
-#print getMaxPos([3,1,2,5,6,1])
+#a = np.array([[1,2,3],[4,5,6],[7,8,9],[10,11,12]])
+#print a
+#print arrayExtract(a, [0,2])
