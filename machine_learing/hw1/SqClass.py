@@ -2,7 +2,9 @@
 """
 Created on Mon Sep 30 00:41:10 2013
 
-@author: jiecaoc
+@author: Jiecao Chen (jieca001@umn.edu)
+
+Least Squares for Classification
 """
 import numpy as np
 import utilities as ut
