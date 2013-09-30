@@ -18,13 +18,17 @@ class Classifier:
 #        self.labelValuePairs = ls
 #        self.func = func
         "new class created"
+
+    
+        
     
     def classify(self, value):
         # find the most possible label for value
         best = (0, 10000000)
+        # print self.func(value)
         for p in self.labelValuePairs:
-            if np.linalg.norm(self.func(value) - p[1]) < best[1]:
-                best = (p[0], np.linalg.norm(self.func(value) - p[1]))
+            if ut.distance(self.func(value), p[1]) < best[1]:
+                best = (p[0], ut.distance(self.func(value), p[1]))
         return best[0]
   
   
@@ -48,18 +52,21 @@ class Classifier:
             S_W = np.diag([1] * D)
         #
         [egs, vecs] = np.linalg.eigh(S_B)
-        # we alway chose the max eigenvlue
-        # which means D features will be projected into 1 feature
+        # print "egs\n", egs
+        # we alway chose the two greatest eigenvlues
+        # which means D features will be projected into 2 features
         pos = ut.getMaxPos(egs)
-        W = np.dot(np.linalg.inv(S_W), np.array(vecs[:, pos:(pos+1)]))
+        W = np.dot(np.linalg.inv(S_W), np.array(vecs[:, (pos-1):(pos+1)]))
 
         # construct the test function
         func = lambda v: np.dot(W.transpose(), ut.ls2Vec(v))
         self.func = func
         labelValues = []
+        
 
         for k in range(1, K + 1):
             tmp = [ (x[0:].transpose())[0].tolist() for x in map(func, trainData[k]) ]
             mean = ut.getMean(tmp)
             labelValues.append((k, mean))
+        # print "label:" , labelValues
         self.labelValuePairs = labelValues

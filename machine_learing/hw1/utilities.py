@@ -6,6 +6,8 @@ Created on Sun Sep 29 00:34:31 2013
 """
 
 import numpy as np
+import random
+
 
 def importRawData(filePath):
     """
@@ -77,10 +79,34 @@ def getMaxPos(ls):
     return max( zip(ls, range(len(ls))) )[1]
     
 
+
+
+
+def distance(v, u, d = 2):
+    
+    tmp = map(lambda x: pow(np.abs(x[0] - x[1]), d) / pow(np.abs(sum(x)), d), zip(v, u))
+    return sum(tmp)
    
 add = lambda x, y: x + y
 
 def ls2Vec(ls):
     return np.array([ls]).transpose()
+    
+def makeDataRandom(aList):
+    """
+        given a list,
+        return a list with random order
+    """
+    length = len(aList)
+    for i in range(length * 10):
+        a = random.randint(0, length - 1)
+        b = random.randint(0, length - 1)
+        if a != b:
+            tmp = aList[a];
+            aList[a] = aList[b]
+            aList[b] = tmp
+    return aList
+    
+# print makeDataRandom([1,2,3,4])
 # test
 #print getMaxPos([3,1,2,5,6,1])
