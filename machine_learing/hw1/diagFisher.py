@@ -47,9 +47,9 @@ rawData = ut.importRawData(fileName)
 trainData = ut.dataCrossSplit(rawData, num_cross)
 
 if fileName == 'Iris':
-    subSpaceDim = 2
+    subSpaceDim = 3
 else:
-    subSpaceDim = 4
+    subSpaceDim = 9
 
 
 #print tmp[1]
