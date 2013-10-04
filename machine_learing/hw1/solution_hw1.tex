@@ -31,6 +31,9 @@
 \noindent Machine Learning \hfill Jiecao Chen \hfill ID:4716311 \\
 \textsc{Homework \#1}\\
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Question 1} 
 \subsection*{a}
 \begin{align*}
@@ -80,6 +83,9 @@ $$
 which is the condition $f(x)$ must satisfy to minimize $E[\mathfrak{l}(f(x), y)]$
 
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Question 2}
 let's try to minimize
 \begin{align*}
@@ -112,8 +118,82 @@ $$
 so we have proved $L(f) \geq L(f^*)$
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Question 3}
+\subsection*{Fisher's Linear Discriminant}
+\subsubsection*{Idea}
+The main idea of \textbf{Fisher's Linear Discriminant} is to project the
+features from a high-dimention space to a low-dimention space when maximize the 
+distinctions between different classes.  And Fisher set the criterion as
+$$
+	J(w) = \frac{w^TS_Bw}{w^TS_Ww}
+$$
+the value of $J(w)$ indicates the distance between different classes.
+To get the optimal $w$, we just need to select the $D'$ largest eigenvalues of $S_W^{-1}S_B$ where $D'$ is the dimention of the projected feature space.
+In the code \textbf{diagFisher}, we simply set $S_w = I$.
+\subsubsection*{Experiment results}
+In our implementatin, the dimention of projected feature space $D'$ was set as $3$ for
+data "Iris.csv" and $9$ for "Wine.csv", and in the projected space, \textbf{Gaussian Generative Model} will be used to do classification\\
+================================
+
+
+\begin{verbatim}
+$ python diagFisher.py 'Iris.csv' 10
+
+Data:  Iris.csv
+Error rate for cross_validation: 0.0333333333333
+
+$ python Fisher.py 'Iris.csv' 10
+
+Data:  Iris.csv
+Error rate for cross_validation: 0.02
+
+$ python diagFisher.py 'Wine.csv' 10
+
+Data:  Wine.csv
+Error rate for cross_validation: 0.0588235294118
+
+
+$ python Fisher.py 'Wine.csv' 10
+
+Data:  Wine.csv
+Error rate for cross_validation: 0.0470588235294
+\end{verbatim}
+=================================
+
+we can see that both models are quite accurate, and the performence of $Fisher.py$ is 
+slightly better.
+
+
+
+\subsection*{Least squares linear discriminant}
+\subsection*{Idea}
+This model is quite simple and we just need to minimize the following criterion
+$$
+	E(W) = \frac{1}{2}Tr\big \{ (Y - XW)^T (Y-XW) \big \}
+$$
+The optimal solution would be
+$$
+	W = (X^TX)^{-1}X^TY
+$$
+where $X$ is the matrix of features and $Y$ is the vector of labels.
+
+\subsection*{Experiment results}
+let's see our result\\
+================================
+\begin{verbatim}
+$ python SqClass.py 'Iris.csv' 10
+Data:  Iris.csv
+Error rate for cross_validation: 0.2
+
+$ python SqClass.py 'Wine.csv' 10
+Data:  Wine.csv
+Error rate for cross_validation: 0.0235294117647
+\end{verbatim}
+=================================
+
+much worse than \textbf{Fisher's} method for data 'Iris.csv', 
+but better for 'Wine.csv'
 
 
 \end{document} 
