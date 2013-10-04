@@ -17,7 +17,15 @@ def GaussianGM(trainData):
         given a set of training data
         return a function f(x) as a classifier
         f(x) will return the class of x
+        trainData has the following form:
+        {
+            1: list of feature vectors
+            2: list of feature vectors
+            3:
+            ...
+        }
     """
+    # num of classes
     K = len(trainData)
     # calculate p(C_k)
     p = [0] * (K)
@@ -44,6 +52,7 @@ def GaussianGM(trainData):
         w0[k] = -0.5 * reduce(np.dot, [mu[k].transpose(), sigma_inv, mu[k]])[0,0] + np.log(p[k])
         a[k] = lambda x: np.dot(W[k].transpose(), ut.ls2Vec(x))[0,0] + w0[k]
 
+    # construct a classifier function
     def f(w, w0, x):
         tmp = [ np.dot(ww.transpose(), ut.ls2Vec(x))[0,0] + ww0 
                 for (ww, ww0) in zip(w, w0)
