@@ -1,0 +1,119 @@
+\documentclass[12pt]{amsart}
+\usepackage[margin=1.1in]{geometry}
+\usepackage{graphicx}
+\linespread{1.0}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\HH}{\mathbb{H}}
+\newcommand{\FF}{\mathbb{F}}
+
+\newcommand{\rank}{\mathop\mathrm{rank}}
+\newcommand{\supp}{\mathop\mathrm{supp}}
+\newcommand{\tr}{\mathop\mathrm{tr}}
+\newcommand{\Span}{\mathop\mathrm{span}}
+
+\newcommand{\cl}[1]{\overline{#1}}
+\newcommand{\Id}{\mathop\mathrm{Id}}
+\newcommand{\Int}{\mathop\mathrm{int}}
+
+\newcommand{\Exercise}[1]{\ \par\noindent\textbf{\em{[#1]}}\\}
+\newcommand{\Subexe}[1]{\ \par\noindent\textbf{\em{(#1).}}~}
+\newcommand{\Subsubexe}[1]{\ \par\indent\emph{(#1).}~}
+
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}
+{-\baselineskip}{0.5\baselineskip}{\bf\leftline}}
+\makeatother
+
+\begin{document}
+\noindent Machine Learning \hfill Jiecao Chen \hfill ID:4716311 \\
+\textsc{Homework \#1}\\
+
+\section*{Question 1} 
+\subsection*{a}
+\begin{align*}
+	E[\mathfrak{l}(f(x), y)] 
+	&= \int\int (f(x) - y)^2 p(x, y) dxdy\\
+	&= \int\int
+		\{ (f(x) - E[y|x])^2 + (y - E[y|x])^2 +
+	 	 2(f(x) - E[y|x]) (y - E[y|x]) \} p(x, y) dxdy					
+\end{align*}
+note that $E[y|x]$ is a function of $x$, thus
+$$
+	\int\int 2(f(x) - E[y|x]) (y - E[y|x]) p(x, y) dxdy	=
+	\int 2(f(x) - E[y|x]) (E[y|x] - E[y|x]) p(x) dx =
+	0	
+$$
+so we have 
+\begin{align*}
+	E[\mathfrak{l}(f(x), y)]  = 
+	\int\int
+		\{ (f(x) - E[y|x])^2 + (y - E[y|x])^2
+	 	\} p(x, y) dxdy	\geq \int\int  (y - E[y|x])^2 p(x, y) dxdy
+\end{align*}
+to minimize it, simply let $f(x) = E[y|x]$
+
+\subsection*{b}
+our goal is to minimize
+\begin{align*}
+	E[\mathfrak{l}(f(x), y)]  
+	&=	\int\int |f(x) - y| p(x, y) dx dy\\
+	&=	\int (\int |f(x) - y| p(y|x)	dy) p(x)dx	
+\end{align*}
+as for every $x$, the value of $f(x)$ could be independently chosen, 
+thus we just need to minimize
+$$
+	\int |f(x) - y| p(y|x)	dy
+$$
+now calculate the derivative of above expression with respect to $f(x)$, and set
+it to zero, we have
+\begin{align*}
+	0 = \int sign( f(x) - y ) p(y|x) dy 
+	&= \int_{f(x)}^{+\infty} p(y|x) dy - \int^{f(x)}_{-\infty} p(y|x) dy\\	
+\end{align*}
+which implies 
+$$
+	\int_{f(x)}^{+\infty} p(y|x) dy = \int^{f(x)}_{-\infty} p(y|x) dy
+$$
+which is the condition $f(x)$ must satisfy to minimize $E[\mathfrak{l}(f(x), y)]$
+
+
+\section*{Question 2}
+let's try to minimize
+\begin{align*}
+	L(f) = P(f(x) \neq y) 
+	&= \int\int \mathbf{1}(f(x)\neq y ) p(x, y) dxdy\\
+	&= \int \big ( \int \mathbf{1}(f(x)\neq y ) p(y|x) dy \big ) p(x) dx
+\end{align*}
+as $f(x)$ could independently chosen for every $x$, thus we just need to minimize
+$$
+	\int \mathbf{1}(f(x)\neq y ) p(y|x) dy 
+	=  \mathbf{1}(f(x) \neq 1 ) P(1|x) + \mathbf{1}(f(x) \neq 0 ) P(0|x) = (1)
+$$
+let's discuss how to set $f(x)$ to minimize (1)
+\begin{itemize}
+\item case 1: $P(1|x) > 1/2, P(0|x) = 1 - P(1|x) < 1/2$, \\
+				should choose $\mathbf{1}(f(x) \neq 1 )  = 1$ and
+				$\mathbf{1}(f(x) \neq 0 ) = 0$ to minimize (1)
+\item case 2: $P(1|x) < 1/2, P(0|x) = 1 - P(1|x) > 1/2$, \\
+				should choose $\mathbf{1}(f(x) \neq 1 )  = 0$ and
+				$\mathbf{1}(f(x) \neq 0 ) = 1$ to minimize (1)
+\item case 3: $P(1|x) = P(0|x) = 1/2$,\\
+				any assignment for $\mathbf{1}(f(x) \neq 1 )$ and $\mathbf{1}(f(x) \neq 0 )$
+				is OK
+\end{itemize}
+
+we note that $f^*(x)$ satifies above discussion thus is an optimal solution for 
+$$
+	minimize~~:~~L(f) 
+$$
+so we have proved $L(f) \geq L(f^*)$
+
+
+
+\section*{Question 3}
+
+
+\end{document} 
