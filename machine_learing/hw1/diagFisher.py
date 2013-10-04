@@ -10,7 +10,7 @@ import utilities as ut
 import sys
 
 
-def cross_validation(crossData, subDim):
+def cross_validation(crossData, subSpaceDim):
     """
         given a cross training set
         return the error rate
@@ -21,7 +21,7 @@ def cross_validation(crossData, subDim):
     for i in range(num_cross):
         cl = lda.Classifier()
         # set S_W as diag matrix I
-        cl.training(crossData[i][0], 'diag', subDim)
+        cl.training(crossData[i][0], 'diag', subSpaceDim)
         for k in range(1, len(crossData[i][1]) + 1):
             for x in crossData[i][1][k]:
                 totNum = totNum + 1
@@ -36,10 +36,7 @@ if len(sys.argv) != 3:
     exit()
 fileName = sys.argv[1]
 
-if fileName == "Iris.csv":
-    subDim = 2
-else:
-    subDim = 7
+
     
 num_cross = int(sys.argv[2])
 # import data
@@ -49,8 +46,12 @@ rawData = ut.makeDataRandom(ut.importRawData(fileName))
 rawData = ut.importRawData(fileName)
 trainData = ut.dataCrossSplit(rawData, num_cross)
 
+if fileName == 'Iris':
+    subSpaceDim = 2
+else:
+    subSpaceDim = 4
 
 
 #print tmp[1]
 print "Data: ", fileName
-print "Error rate for cross_validation:", cross_validation(trainData, subDim)
+print "Error rate for cross_validation:", cross_validation(trainData, subSpaceDim)

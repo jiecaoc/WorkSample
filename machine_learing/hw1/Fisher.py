@@ -45,7 +45,7 @@ fileName = sys.argv[1]
 if fileName == "Iris.csv":
     subDim = 2
 else:
-    subDim = 7
+    subDim = 5  
 num_cross = int(sys.argv[2])
 # import data
 # since the date in the file are in order

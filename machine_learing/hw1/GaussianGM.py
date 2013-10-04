@@ -27,12 +27,13 @@ def GaussianGM(trainData):
     """
     # num of classes
     K = len(trainData)
+
     # calculate p(C_k)
     p = [0] * (K)
     for i in range(K):
         p[i] = len(trainData[i + 1])
     N = sum(p)
-    p = p / (N + .0)
+    p = (np.array(p) / (N + .0)).tolist()
 
 
     # calculate a_k (x)= W_k^T x + w_k0

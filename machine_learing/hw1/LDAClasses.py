@@ -9,6 +9,7 @@ Based on analysis of Bishop's Pattern Recognization and Machine Learning
 """
 import numpy as np
 import utilities as ut
+import GaussianGM
 
 class Classifier:
     """
@@ -23,13 +24,7 @@ class Classifier:
         
     
     def classify(self, value):
-        # find the most possible label for value
-        best = (0, 10000000)
-        # print self.func(value)
-        for p in self.labelValuePairs:
-            if ut.distance(self.func(value), p[1]) < best[1]:
-                best = (p[0], ut.distance(self.func(value), p[1]))
-        return best[0]
+        return self.func(self.projectFunc(value))
   
   
     def training(self, trainData, mode = 'diag', subSpaceDim = 2):
@@ -60,21 +55,24 @@ class Classifier:
             S_W = reduce(ut.add, Sk[1:])
         #
         [egs, vecs] = np.linalg.eigh(np.dot(np.linalg.inv(S_W), S_B))
-        # print "egs\n", egs
-        # we alway chose the subSpaceDim greatest eigenvlues
-        # which means D features will be projected into subSpaceDim features
+        
+         
         pos = ut.getMaxPos(egs, subSpaceDim)
+        
         W = ut.arrayExtract(vecs, pos)
 
-        # construct the test function
-        func = lambda v: np.dot(W.transpose(), ut.ls2Vec(v))
-        self.func = func
-        labelValues = []
+        # now we will construct trainingData set in the
+        # sub-feature space, then run Gaussian generative 
+        # method to train the new trainData set to get a
+        # a classifier
+        def projectFunc(v):
+            tmp = np.dot(ut.ls2Vec(v).transpose(), W).tolist()
+            return tmp[0]
+        for k in range(K):
+            trainData[k + 1] = map(projectFunc, trainData[k + 1])
+        self.projectFunc = projectFunc
+        self.func = GaussianGM.GaussianGM(trainData)
+
         
 
-        for k in range(1, K + 1):
-            tmp = [ (x[0:].transpose())[0].tolist() for x in map(func, trainData[k]) ]
-            mean = ut.getMean(tmp)
-            labelValues.append((k, mean))
-        # print "label:" , labelValues
-        self.labelValuePairs = labelValues
+

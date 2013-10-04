@@ -32,7 +32,7 @@ def hashData(rawData, num_classes = 3):
     map(f, rawData)
     return result
 
-def dataCrossSplit(rawData, num_cross):
+def dataCrossSplit(rawData, num_cross, hashed = True):
     """
         return a dict of (trainDataSet, testDataSet),
         which have length num_cross
@@ -42,7 +42,10 @@ def dataCrossSplit(rawData, num_cross):
     for i in range(num_cross):
         train = rawData[: i * delta] + rawData[(i + 1) * delta:]
         test = rawData[i * delta : min((i + 1) * delta, len(rawData))]
-        result[i] = (hashData(train), hashData(test))
+        if hashed:
+            result[i] = (hashData(train), hashData(test))
+        else:
+            result[i] = (train, test)
     return result
         
 
