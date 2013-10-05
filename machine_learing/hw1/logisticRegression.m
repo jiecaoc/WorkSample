@@ -64,12 +64,15 @@ function [] = logisticRegression(filename, num_splits, train_percent)
         meanErrors = [meanErrors, a];
         stdVarErrors = [stdVarErrors, b];
     end
+    train_percent
+    meanErrors
+    stdVarErrors
 %     plot(train_percent, meanErrors);
 %     xlabel('Percentage of used trainning data');
 %     ylabel('Mean of Error Rates');
-    plot(train_percent, stdVarErrors);
-    xlabel('Percentage of used trainning data');
-    ylabel('Std var of Error Rates')
+%     plot(train_percent, stdVarErrors);
+%     xlabel('Percentage of used trainning data');
+%     ylabel('Std var of Error Rates')
     %plot(train_percent, stdVarErrors);
     
     

@@ -196,4 +196,108 @@ much worse than \textbf{Fisher's} method for data 'Iris.csv',
 but better for 'Wine.csv'
 
 
+
+
+\section*{Question 4}
+\subsection*{i}
+\subsubsection*{Idea}
+\textbf{Logistic regression} assume that
+$$
+	log(\frac{P(C_h|\phi)}{P(C_k|\phi)}) = W^T\phi + W_0
+$$
+then we want to minimize the negative log-likeihood
+$$
+	E(W) = -\Sigma_{n=1}^N \big \{ y_nW^t\phi_n - log(1 + exp(W^T\phi_n)) \big \}
+$$
+The gradient of the objective function
+$$
+\nabla E(W) = \phi^T (\pi - y)
+$$
+The using the Newton-Raphson iterative optimization
+$$
+W^{new} = W^{old} - H^{-1}(W^{old}) \nabla E(W^{old})
+$$
+
+\subsubsection*{Result}
+See
+\ref{fig:verticalcell1}
+\ref{fig:verticalcell2}
+\ref{fig:verticalcell3}
+\ref{fig:verticalcell4}
+
+\begin{figure}[H]
+\centering
+        \includegraphics[totalheight=18cm]{Pima_mean_rogReg.pdf}
+    \caption{mean of error rates for Pima.csv}
+    \label{fig:verticalcell1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+        \includegraphics[totalheight=18cm]{Pima_std_rogReg.pdf}
+    \caption{standard var of error rates for Pima.csv}
+    \label{fig:verticalcell2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+        \includegraphics[totalheight=18cm]{Iono_mean_logReg.pdf}
+    \caption{mean of error rates for Ionosphere.csv}
+    \label{fig:verticalcell3}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+        \includegraphics[totalheight=18cm]{Iono_std_logReg.pdf}
+    \caption{standard var of error rates for Ionosphere.csv}
+    \label{fig:verticalcell4}
+\end{figure}
+\subsection*{ii}
+\subsubsection*{Idea}
+\textbf{Naive Bayes Gaussian} assumes features are independent and
+class conditionals $p(x|C_k)$ are Gaussian
+
+for K-class problem
+$$
+	a_k(x) = \sigma(w_k^Tx + w_{k0})
+$$
+$$
+	w_k = \Sigma^{-1}\mu_k\\
+	w_{k0} = \frac{1}{2}\mu_k^T \Sigma^{-1}\mu_k + log p(C_k)
+$$
+
+\subsubsection*{Result}
+See
+\ref{fig:verticalcell11}
+\ref{fig:verticalcell21}
+\ref{fig:verticalcell31}
+\ref{fig:verticalcell41}
+
+\begin{figure}[H]
+\centering
+        \includegraphics[totalheight=18cm]{Pima_mean_nbg.pdf}
+    \caption{mean of error rates for Pima.csv}
+    \label{fig:verticalcell11}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+        \includegraphics[totalheight=18cm]{Pima_std_nbg.pdf}
+    \caption{standard var of error rates for Pima.csv}
+    \label{fig:verticalcell21}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+        \includegraphics[totalheight=18cm]{Iono_mean_nbg.pdf}
+    \caption{mean of error rates for Ionosphere.csv}
+    \label{fig:verticalcell31}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+        \includegraphics[totalheight=18cm]{Iono_std_nbg.pdf}
+    \caption{standard var of error rates for Ionosphere.csv}
+    \label{fig:verticalcell41}
+\end{figure}
 \end{document} 
