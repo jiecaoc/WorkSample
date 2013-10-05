@@ -13,6 +13,12 @@ function [] = logisticRegression(filename, num_splits, train_percent)
     rawData = rawData(:, 1 : n);
     [N, k] = size(rawData);
     
+    
+    
+    
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % given trainingData and testData
     % return the errorRate
     function [errorRate] = calcErrorRate(trainingData, testData)
@@ -31,31 +37,40 @@ function [] = logisticRegression(filename, num_splits, train_percent)
     
 
 
-    % now let's calculate the error
-    error_means = ones(length(train_percent) , 1);
-    error_var = ones(length(train_percent) , 1);
+     %%%%%%%
+    % given a percentage of training data
+    % let's compute the errors
+    %%%%%%%
+    [train, test] = dataSetRandomSplit(rawData, 0.8);
     
-    for pct = 1 : length(train_percent)
-        percent = train_percent(pct);
-        errorRates = ones(num_splits, 1);
+    function [meanError, varError] = calcError(train, test, percent)
+        Errors = [];
         for i = 1 : num_splits
-            % num of data should be used
-            n = int64(N * percent / 100.);
-            % random choose from rawData
-            pos = randperm(N);
-            randomData = rawData(pos(1:n), :);
-            % split data and calc errorRate
-            tmp = int64(n * 0.8);
-            errorRates(i) = calcErrorRate(randomData(1:tmp, :), rawData(1 : int64(N * 0.2), :));%randomData((tmp + 1) : n, :));
+            [trainData, tmp] = dataSetRandomSplit(train, percent/100.);
+            errors = calcErrorRate(trainData, test);
+            Errors = [Errors, errors];             
         end
-        error_means(pct) = mean(errorRates);
-        error_var(pct) = var(errorRates);
+        meanError = mean(Errors);
+        varError = sqrt(var(Errors)) / meanError;
     end
- 
+
+
     % OK, let's show our result
-    for i = 1 : length(train_percent)   
-        fprintf('Percentage of used training data: %f \n', train_percent(i));
-        fprintf('Mean of error rate: %f\n', error_means(i));
-        fprintf('Var of error rate: %f\n', error_var(i));
+    %%%%
+    meanErrors = [];
+    stdVarErrors = [];
+    for i = 1 : length(train_percent) 
+        [a, b] =  calcError(train, test, train_percent(i));
+        meanErrors = [meanErrors, a];
+        stdVarErrors = [stdVarErrors, b];
     end
+%     plot(train_percent, meanErrors);
+%     xlabel('Percentage of used trainning data');
+%     ylabel('Mean of Error Rates');
+    plot(train_percent, stdVarErrors);
+    xlabel('Percentage of used trainning data');
+    ylabel('Std var of Error Rates')
+    %plot(train_percent, stdVarErrors);
+    
+    
 end

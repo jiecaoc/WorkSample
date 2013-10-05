@@ -1,4 +1,14 @@
 function [w] = logReg(rawData)
+    [Ndata, Kdata] = size(rawData);
+    % pre-processing
+    % when the size of training data is smaller than 
+    % dim of feature, add some noise
+    if Ndata <= Kdata
+        for i = 1 : (Kdata - Ndata)
+            vec = randomVect(Kdata - 1);
+            rawData = [rawData; vec];
+        end
+    end
     [N, k] = size(rawData);
     y = rawData(:,1) - 1;
     phi = rawData(:,2:k);  
