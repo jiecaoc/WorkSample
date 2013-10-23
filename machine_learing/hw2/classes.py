@@ -39,6 +39,8 @@ class DTree:
         for key in self.next.keys():
             dt = self.next[key]
             dt.training(dt.data, height - 1)
+            # after training, release the data space
+            dt.data = []
         
     
 def findMost(examples):
