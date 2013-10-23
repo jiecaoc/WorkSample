@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Oct 22 20:53:09 2013
+Created on Wed Oct 23 16:47:34 2013
 
 @author: jiecaoc
 """
-import numpy as np
 import utilities as ut
 from classes import DTree 
 
-def H(examples):
+def Gini(examples):
     """
-        calculate the entropy of examples
+        calculate the Gini Index of examples
     """
     totlen = len(examples) + .0
     count = {}
@@ -19,24 +18,18 @@ def H(examples):
         count[eg[0]] = count[eg[0]] + 1
     p1 = count[-1] / totlen
     p2 = count[1] / totlen
-    def Log2(x):
-        if x <= 0.000001:
-            return 100000
-        else:
-            return np.log2(x)
-    return -p1 * Log2(p1) - p2 * Log2(p2)
+    return p1 * p2
 
-
-def IG(examples, att):
+def GI(examples, att):
     tmp = {}
     totlen = len(examples) + .0
     for eg in examples:
         if not eg[att] in tmp.keys():
             tmp[eg[att]] = []
         tmp[eg[att]].append(eg)
-    p = [(len(egs) / totlen * H(egs)) for egs in tmp.values()]
+    p = [(len(egs) / totlen * Gini(egs)) for egs in tmp.values()]
     ans = sum(p)
-    return H(examples) - ans
+    return Gini(examples) - ans
     
 def SelectAtt(examples):
     """ select the best attribute 
@@ -44,15 +37,17 @@ def SelectAtt(examples):
         Based on IG
     """
     length = len(examples[0])
-    p = [IG(examples, i + 1) for i in range(length - 1)]
+    p = [GI(examples, i + 1) for i in range(length - 1)]
     ans = ut.getMaxPos(p)
-    #print p[ans[0]]
+    # print p[ans[0]]
     return ans[0] + 1
 
+# now test ,
+# print out the wrong predictions
 dt =  DTree(SelectAtt) 
 egs = ut.importRawData('Mushroom.csv')
 print SelectAtt(egs)
-dt.training(egs, 1)
-for i in range(5000):
+dt.training(egs, 2)
+for i in range(8000):
     if egs[i][0] != dt.predict(egs[i]):
         print dt.predict(egs[i]), '\n', egs[i]
