@@ -7,6 +7,7 @@ Created on Tue Oct 22 20:53:09 2013
 import numpy as np
 import utilities as ut
 from classes import DTree 
+import sys
 
 def H(examples):
     """
@@ -49,10 +50,32 @@ def SelectAtt(examples):
     #print p[ans[0]]
     return ans[0] + 1
 
-dt =  DTree(SelectAtt) 
-egs = ut.importRawData('Mushroom.csv')
-print SelectAtt(egs)
-dt.training(egs, 1)
-for i in range(5000):
-    if egs[i][0] != dt.predict(egs[i]):
-        print dt.predict(egs[i]), '\n', egs[i]
+
+def cross_vad(examples, num_folds = 10):
+    data = ut.dataCrossSplit(examples, num_folds, False)
+    errorRates = []
+    for i in range(num_folds):
+        egs = data[i]
+        dt = DTree(SelectAtt)
+        dt.training(egs[0], 1)
+        # calculate error rate
+        error = [0.] * 2
+        for j in range(2):
+            for x in egs[j]:
+                if dt.predict(x) != x[0]:
+                    error[j] = error[j] + 1
+            error[j] = error[j] / len(egs[j])
+        print "Fold ", i, " trainingData errorRate: ", error[0], " testData errorRate:", error[1]
+        errorRates.append(error)
+    arr = np.array(errorRates)
+    print "Train Mean ErrorRate:", np.mean(arr[:,0]), " Test Mean ErrorRate:", np.mean(arr[:,1])
+    print "Train StdVar ErrorRate:", np.sqrt(np.var(arr[:,0])), " Test Mean ErrorRate:", np.sqrt(np.var(arr[:, 1]))
+
+if __name__ == '__main__':
+    filename = sys.argv[1]
+    egs = ut.importRawData(filename)
+    cross_vad(egs)
+    dt = DTree(SelectAtt)
+    dt.training(egs)
+    print "========= the decision tree ============"
+    dt.printTree()

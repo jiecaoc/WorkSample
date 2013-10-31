@@ -23,6 +23,21 @@ class DTree:
         dt = self.next[example[att]]
         return dt.predict(example)
     
+    def printTree(self, block = ""):
+        if self.attribute == "":
+            return
+        if block == "":
+            print block, self.attribute
+        for v in self.next.keys():
+            print block, "|"
+            print block, "--", v,
+            if self.next[v].attribute == "":
+                print "-- Label:", self.next[v].label
+            else:
+                print ""
+                self.next[v].printTree(block + "   ")
+            
+
     
     def training(self, examples, height = 1):
         self.label = findMost(examples)

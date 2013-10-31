@@ -21,6 +21,14 @@ def importRawData(filePath):
     fin.close()
     return data
 
+def preprocess(rawData):
+    """
+        delete #11 features
+    """
+    for x in rawData:
+        del x[11]
+    return rawData
+
 def hashData(rawData, num_classes = 3):
     """
         given rawData, return hashed data
@@ -115,8 +123,9 @@ def arrayExtract(arr, ls):
     
     return np.array([arr[:,i].tolist() for i in ls]).transpose()
         
-        
 
+    
+    
 # print makeDataRandom([1,2,3,4])
 # test
 #a = np.array([[1,2,3],[4,5,6],[7,8,9],[10,11,12]])
