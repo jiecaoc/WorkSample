@@ -11,25 +11,25 @@ Examples and brief description were included in `Solution_HW2.pdf`
 To run the code, simply run following command in terminal:
 
 
-   python dstumpIG.py Mushroom.csv 
+    python dstumpIG.py Mushroom.csv 
 
 ### b
 To run the code, simply run following command in terminal:
 
 
-   python dtree2GI.py Mushroom.csv 
+    python dtree2GI.py Mushroom.csv 
 
 ## Question 4
 ### a
 command format:
 
 
-   python myAdaBoost filename T
+    python myAdaBoost filename T
 
 Example:
 
 
-   python myAdaBoost.py Mushroom.csv 5
+    python myAdaBoost.py Mushroom.csv 5
 
 **Note:** it takes several seconds to several minutes to get
 the answer, depends on `T`    
@@ -40,7 +40,7 @@ skip
 command format:
 
 
-   python myLogitBoost filename T
+    python myLogitBoost filename T
 
 Example:
 	
