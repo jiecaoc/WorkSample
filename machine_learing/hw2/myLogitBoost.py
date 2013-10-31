@@ -7,7 +7,7 @@ Created on Thu Oct 24 22:37:49 2013
 import numpy as np
 from classes import DTree
 import utilities as ut
-
+import sys
 
 def getWeakLearner(w, egs):
     """ 
@@ -42,7 +42,7 @@ def neq(a, b):
     return 1 if a != b else 0
     
 
-def AdaBoost(examples, M):
+def LogitBoost(examples, M):
     """
     given:
         examples
@@ -81,11 +81,33 @@ def AdaBoost(examples, M):
         return -1 if tmp < 0 else 1
     return lambda eg: Y(eg)
         
-egs = ut.importRawData('Mushroom.csv')
-N = len(egs)
-w = [1. / N] * N
+def cross_vad(examples, T, num_folds = 10):
+    data = ut.dataCrossSplit(examples, num_folds, False)
+    errorRates = []
+    for i in range(num_folds):
+        egs = data[i]
+        classifier = LogitBoost(egs[0], T)
+        # calculate error rate
+        error = [0.] * 2
+        for j in range(2):
+            for x in egs[j]:
+                if classifier(x) != x[0]:
+                    error[j] = error[j] + 1
+            error[j] = error[j] / len(egs[j])
+        print "Fold ", i, " trainingData errorRate: ", error[0], " testData errorRate:", error[1]
+        errorRates.append(error)
+    arr = np.array(errorRates)
+    print "Train Mean ErrorRate:", np.mean(arr[:,0]), " Test Mean ErrorRate:", np.mean(arr[:,1])
+    print "Train StdVar ErrorRate:", np.sqrt(np.var(arr[:,0])), " Test Mean ErrorRate:", np.sqrt(np.var(arr[:, 1]))
 
-dt = AdaBoost(egs, 5)
-for i in range(500):
-    if egs[i][0] != dt(egs[i]):
-        print dt(egs[i]), '\n', egs[i]
+
+
+if __name__ == '__main__':
+    T = int(sys.argv[2])
+    filename = sys.argv[1]
+    egs = ut.importRawData(filename)
+    egs = ut.preprocess(egs)
+    print "T =", T
+    cross_vad(egs, T)
+
+
