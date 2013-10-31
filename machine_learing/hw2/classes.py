@@ -26,16 +26,15 @@ class DTree:
     def printTree(self, block = ""):
         if self.attribute == "":
             return
-        if block == "":
-            print block, self.attribute
+        print block, "#", self.attribute, "Attribute"
         for v in self.next.keys():
             print block, "|"
             print block, "--", v,
             if self.next[v].attribute == "":
-                print "-- Label:", self.next[v].label
+                print "-> Label:", self.next[v].label
             else:
-                print ""
-                self.next[v].printTree(block + "   ")
+                print "->"
+                self.next[v].printTree(block + "      ")
             
 
     

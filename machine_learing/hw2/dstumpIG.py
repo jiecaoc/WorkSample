@@ -74,6 +74,7 @@ def cross_vad(examples, num_folds = 10):
 if __name__ == '__main__':
     filename = sys.argv[1]
     egs = ut.importRawData(filename)
+    egs = ut.preprocess(egs)
     cross_vad(egs)
     dt = DTree(SelectAtt)
     dt.training(egs)

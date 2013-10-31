@@ -6,6 +6,8 @@ Created on Wed Oct 23 16:47:34 2013
 """
 import utilities as ut
 from classes import DTree 
+import numpy as np
+import sys
 
 def Gini(examples):
     """
@@ -42,12 +44,32 @@ def SelectAtt(examples):
     # print p[ans[0]]
     return ans[0] + 1
 
-# now test ,
-# print out the wrong predictions
-dt =  DTree(SelectAtt) 
-egs = ut.importRawData('Mushroom.csv')
-print SelectAtt(egs)
-dt.training(egs, 2)
-for i in range(8000):
-    if egs[i][0] != dt.predict(egs[i]):
-        print dt.predict(egs[i]), '\n', egs[i]
+def cross_vad(examples, num_folds = 10):
+    data = ut.dataCrossSplit(examples, num_folds, False)
+    errorRates = []
+    for i in range(num_folds):
+        egs = data[i]
+        dt = DTree(SelectAtt)
+        dt.training(egs[0], 2)
+        # calculate error rate
+        error = [0.] * 2
+        for j in range(2):
+            for x in egs[j]:
+                if dt.predict(x) != x[0]:
+                    error[j] = error[j] + 1
+            error[j] = error[j] / len(egs[j])
+        print "Fold ", i, " trainingData errorRate: ", error[0], " testData errorRate:", error[1]
+        errorRates.append(error)
+    arr = np.array(errorRates)
+    print "Train Mean ErrorRate:", np.mean(arr[:,0]), " Test Mean ErrorRate:", np.mean(arr[:,1])
+    print "Train StdVar ErrorRate:", np.sqrt(np.var(arr[:,0])), " Test Mean ErrorRate:", np.sqrt(np.var(arr[:, 1]))
+
+if __name__ == '__main__':
+    filename = sys.argv[1]
+    egs = ut.importRawData(filename)
+    egs = ut.preprocess(egs)
+    cross_vad(egs)
+    dt = DTree(SelectAtt)
+    dt.training(egs, 2)
+    print "========= the decision tree ============"
+    dt.printTree()
