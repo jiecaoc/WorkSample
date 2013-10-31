@@ -10,10 +10,12 @@ Examples and brief description were included in `Solution_HW2.pdf`
 ### a
 To run the code, simply run following command in terminal:
 
+
    python dstumpIG.py Mushroom.csv 
 
 ### b
 To run the code, simply run following command in terminal:
+
 
    python dtree2GI.py Mushroom.csv 
 
@@ -21,9 +23,11 @@ To run the code, simply run following command in terminal:
 ### a
 command format:
 
+
    python myAdaBoost filename T
 
 Example:
+
 
    python myAdaBoost.py Mushroom.csv 5
 
