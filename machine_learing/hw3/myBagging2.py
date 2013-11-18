@@ -10,7 +10,7 @@ egs = ut.importRawData('Ionosphere.csv')
 classifier = cls.classifierBagging(B)
 classifier.training(egs)
 
-for i in range(100):
+for i in range(300):
     eg = egs[i]
     print eg[0], classifier.predict(eg)
     

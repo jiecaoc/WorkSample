@@ -17,12 +17,14 @@ class DTree:
         self.next = {}
         self.data = []
         self.label = ""
+        self.threshold = []
     
     def predict(self, example):
         if self.next == {}:
             return self.label
         att = self.attribute
-        dt = self.next[example[att]]
+        flag = example[att] < self.threshold[att]
+        dt = self.next[flag]
         return dt.predict(example)
     
     def printTree(self, block = ""):
@@ -42,15 +44,21 @@ class DTree:
     
     def training(self, examples, height = 1):
         self.label = findMost(examples)
+        
+        means = [1] * len(examples[0])
+        for i in range(len(means)):
+            means[i] = np.mean([eg[i] for eg in examples])
+        self.threshold = means
         if height <= 0:
             return
         # select the attribute used in this node
         self.attribute = self.selectFunction(examples)
         # group the example based on the value on attribute
         for eg in examples:
-            if not eg[self.attribute] in self.next.keys():
-                self.next[eg[self.attribute]] = DTree(self.selectFunction)
-            self.next[eg[self.attribute]].data.append(eg)
+            flag = (eg[self.attribute] < means[self.attribute])
+            if not flag in self.next.keys():
+                self.next[flag] = DTree(self.selectFunction)
+            self.next[flag].data.append(eg)
         # now we need to train the next level
         for key in self.next.keys():
             dt = self.next[key]
@@ -118,10 +126,15 @@ def H(examples):
 def IG(examples, att):
     tmp = {}
     totlen = len(examples) + .0
+    means = [1] * len(examples[0])
+    for i in range(len(means)):
+        means[i] = np.mean([eg[i] for eg in examples])
+        
     for eg in examples:
-        if not eg[att] in tmp.keys():
-            tmp[eg[att]] = []
-        tmp[eg[att]].append(eg)
+        flag = eg[att] < means[att]
+        if not (flag) in tmp.keys():
+            tmp[flag] = []
+        tmp[flag].append(eg)
     p = [(len(egs) / totlen * H(egs)) for egs in tmp.values()]
     ans = sum(p)
     return H(examples) - ans
