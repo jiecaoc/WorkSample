@@ -5,7 +5,7 @@ Created on Sun Sep 29 00:34:31 2013
 @author: Jiecao Chen (jieca001@umn.edu)
 """
 
-import numpy as np
+import numpy as np  
 import random
 
 
@@ -15,9 +15,11 @@ def importRawData(filePath):
         return format data:
     """
     fin = open(filePath, 'r')
-    data = map(lambda s: s.split(';'), fin.read().splitlines())
-    f = lambda ls: map(lambda s: int(s), ls)
+    data = map(lambda s: s.split(','), fin.read().splitlines())
+    f = lambda ls: map(lambda s: float(s), ls)
     data = map(f, data)
+    for i in range(len(data)):
+        data[i][0] = int(data[i][0]) 
     fin.close()
     return data
 
@@ -130,52 +132,15 @@ def BootstrapSampling(examples):
         give a BootstrapSampling.
     """
     K = len(examples)
+    print "K=", K
     egs = [1] * K
     for i in range(K):
-        egs[i] = examples[random.randint(0,K)]
+        t = random.randint(0,K-1)
+        egs[i] = examples[t]
     return egs
     
 
- def H(examples):
-    """
-        calculate the entropy of examples
-    """
-    totlen = len(examples) + .0
-    count = {}
-    count[1] = count[2] = 0
-    for eg in examples:
-        count[eg[0]] = count[eg[0]] + 1
-    p1 = count[-1] / totlen
-    p2 = count[1] / totlen
-    def Log2(x):
-        if x <= 0.000001:
-            return 100000
-        else:
-            return np.log2(x)
-    return -p1 * Log2(p1) - p2 * Log2(p2)
-
-
-def IG(examples, att):
-    tmp = {}
-    totlen = len(examples) + .0
-    for eg in examples:
-        if not eg[att] in tmp.keys():
-            tmp[eg[att]] = []
-        tmp[eg[att]].append(eg)
-    p = [(len(egs) / totlen * H(egs)) for egs in tmp.values()]
-    ans = sum(p)
-    return H(examples) - ans
-    
-def SelectAtt(examples):
-    """ select the best attribute 
-        to split the examples,
-        Based on IG
-    """
-    length = len(examples[0])
-    p = [IG(examples, i + 1) for i in range(length - 1)]
-    ans = ut.getMaxPos(p)
-    #print p[ans[0]]
-    return ans[0] + 1
+ 
    
     
     
