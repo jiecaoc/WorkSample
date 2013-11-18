@@ -138,7 +138,14 @@ def BootstrapSampling(examples):
         t = random.randint(0,K-1)
         egs[i] = examples[t]
     return egs
-    
+
+def sampling(S, N):
+    """
+        given a list S,
+        random pick up N elements of it
+    """
+    random.shuffle(S)
+    return S[0:N]
 
  
    

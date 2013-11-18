@@ -6,6 +6,7 @@ Created on Tue Oct 22 20:03:35 2013
 """
 import numpy as np
 import utilities as ut
+import operator as op
 
 class DTree:
     """ Decision Tree Model """
@@ -24,6 +25,8 @@ class DTree:
             return self.label
         att = self.attribute
         flag = example[att] < self.threshold[att]
+        if (flag not in self.next.keys()):
+            return self.label
         dt = self.next[flag]
         return dt.predict(example)
     
@@ -91,7 +94,26 @@ class classifierBagging:
         for i in range(self.B):
             result[i] = [self.trees[i].predict(eg)]
         return findMost(result)
-            
+
+
+class RandomForest(classifierBagging):
+    """
+        A simply implementation of 
+        Random Forest
+    """            
+    def __init__(self, numOfFeatures, numOfBases = 100):
+        self.m = numOfFeatures
+        self.B = numOfBases
+        self.trees = [1] * self.B
+    
+    def training(self, egs):
+        for i in range(self.B):
+            featureSet = ut.sampling(range(len(egs[0]) - 1), self.m)
+            dt = DTree(lambda x: SelectAtt(x, featureSet))
+            samples = ut.BootstrapSampling(egs)
+            dt.training(samples, 4)
+            self.trees[i] = dt 
+        
     
 def findMost(examples):
     tmp = {}
@@ -122,6 +144,13 @@ def H(examples):
             return np.log2(x)
     return -p1 * Log2(p1) - p2 * Log2(p2)
 
+def threshold(egs, att):
+    """
+        given egs and attribute,
+        choose the `best` threshold for this att to construct binary decision tree
+    """
+    return 0
+    
 
 def IG(examples, att):
     tmp = {}
@@ -138,14 +167,17 @@ def IG(examples, att):
     p = [(len(egs) / totlen * H(egs)) for egs in tmp.values()]
     ans = sum(p)
     return H(examples) - ans
+
+
     
-def SelectAtt(examples):
+def SelectAtt(examples, featureSet = []):
     """ select the best attribute 
         to split the examples,
         Based on IG
     """
-    length = len(examples[0])
-    p = [IG(examples, i + 1) for i in range(length - 1)]
+    if len(featureSet) == 0:
+        featureSet = range(len(examples[0]) - 1)
+    p = [IG(examples, i + 1) for i in featureSet]
     ans = ut.getMaxPos(p)
     #print p[ans[0]]
     return ans[0] + 1
