@@ -57,17 +57,43 @@ class DTree:
             dt.training(dt.data, height - 1)
             # after training, release the data space
             dt.data = []
+ 
+
+class classifierBagging:
+    """
+        Classifier using bagging approach
+    """
+    def __init__(self, numberOfBases):
+        self.B = numberOfBases
+        self.trees = [1] * self.B
         
+    def training(self, egs):
+        for i in range(self.B):
+            dt = DTree(SelectAtt)
+            samples = ut.BootstrapSampling(egs)
+            dt.training(samples, 2)
+            self.trees[i] = dt
+    
+    def predict(self, eg):
+        """
+            given an example
+            make a prediction
+        """
+        result = [1] * self.B
+        for i in range(self.B):
+            result[i] = [self.trees[i].predict(eg)]
+        return findMost(result)
+            
     
 def findMost(examples):
     tmp = {}
-    tmp[-1] = tmp[1] = 0
+    tmp[1] = tmp[2] = 0
     for eg in examples:
         tmp[eg[0]] = tmp[eg[0]] + 1
-    if tmp[-1] > tmp[1]:
-        return -1
-    else:
+    if tmp[1] > tmp[2]:
         return 1
+    else:
+        return 2
 
 
 def H(examples):
