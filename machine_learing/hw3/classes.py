@@ -90,10 +90,9 @@ class classifierBagging:
             given an example
             make a prediction
         """
-        result = [1] * self.B
-        for i in range(self.B):
-            result[i] = [self.trees[i].predict(eg)]
-        return findMost(result)
+        return findMost([[dt.predict(eg)] for dt in self.trees])
+
+
 
 
 class RandomForest(classifierBagging):
