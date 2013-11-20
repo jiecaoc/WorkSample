@@ -50,7 +50,7 @@ class DTree:
         
         means = [1] * len(examples[0])
         for i in range(len(means)):
-            means[i] = np.mean([eg[i] for eg in examples])#threshold(examples, i)#np.mean([eg[i] for eg in examples])
+            means[i] = np.mean([eg[i] for eg in examples])#threshold(examples, i)#
         self.threshold = means
         if height <= 0:
             return
