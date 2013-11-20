@@ -24,7 +24,7 @@ class DTree:
         if self.next == {}:
             return self.label
         att = self.attribute
-        flag = example[att] < self.threshold[att]
+        flag = example[att] <= self.threshold[att]
         if (flag not in self.next.keys()):
             return self.label
         dt = self.next[flag]
@@ -50,7 +50,7 @@ class DTree:
         
         means = [1] * len(examples[0])
         for i in range(len(means)):
-            means[i] = np.mean([eg[i] for eg in examples])
+            means[i] = np.mean([eg[i] for eg in examples])#threshold(examples, i)#np.mean([eg[i] for eg in examples])
         self.threshold = means
         if height <= 0:
             return
@@ -58,7 +58,7 @@ class DTree:
         self.attribute = self.selectFunction(examples)
         # group the example based on the value on attribute
         for eg in examples:
-            flag = (eg[self.attribute] < means[self.attribute])
+            flag = (eg[self.attribute] <= means[self.attribute])
             if not flag in self.next.keys():
                 self.next[flag] = DTree(self.selectFunction)
             self.next[flag].data.append(eg)
@@ -78,11 +78,11 @@ class classifierBagging:
         self.B = numberOfBases
         self.trees = [1] * self.B
         
-    def training(self, egs):
+    def training(self, egs, depth = 2):
         for i in range(self.B):
             dt = DTree(SelectAtt)
             samples = ut.BootstrapSampling(egs)
-            dt.training(samples, 2)
+            dt.training(samples, depth)
             self.trees[i] = dt
     
     def predict(self, eg):
@@ -106,12 +106,12 @@ class RandomForest(classifierBagging):
         self.B = numOfBases
         self.trees = [1] * self.B
     
-    def training(self, egs):
+    def training(self, egs, depth = 2):
         for i in range(self.B):
             featureSet = ut.sampling(range(len(egs[0]) - 1), self.m)
             dt = DTree(lambda x: SelectAtt(x, featureSet))
             samples = ut.BootstrapSampling(egs)
-            dt.training(samples, 4)
+            dt.training(samples, depth)
             self.trees[i] = dt 
         
     
@@ -137,30 +137,51 @@ def H(examples):
         count[eg[0]] = count[eg[0]] + 1
     p1 = count[1] / totlen
     p2 = count[2] / totlen
-    def Log2(x):
-        if x <= 0.000001:
-            return 100000
-        else:
-            return np.log2(x)
     return -p1 * Log2(p1) - p2 * Log2(p2)
+
+def Log2(x):
+    if x <= 0.000001:
+        return 100000
+    else:
+        return np.log2(x)
+
+def ent(p1, p2):
+    return  -p1 * Log2(p1) - p2 * Log2(p2)
 
 def threshold(egs, att):
     """
         given egs and attribute,
         choose the `best` threshold for this att to construct binary decision tree
     """
-    return 0
-    
+    egs = sorted(egs, key = op.itemgetter(att))
+    N = len(egs)
+    c1 = [0] * len(egs)
+    c = 0
+    for eg in egs:
+        if eg[0] == 1:
+            if c == 0:
+                c1[0] = 1
+            else:
+                c1[c] = c1[c-1] + 1
+        c = c + 1
+    info = [0] * len(egs)
+    for i in range(len(egs) - 1):
+        p1 = c1[i] / (i + 1)
+        p2 = 1 - c1[i]
+        q1 =  (c1[N-1] - c1[i]) / (N - i - 1)
+        q2 = 1 - q1
+        info[i] = -(i+1) / N * ent(p1, p2) - (N - i - 1) * ent(q1, q2)
+    return egs[ut.getMaxPos(info)[0]][att]
 
 def IG(examples, att):
     tmp = {}
     totlen = len(examples) + .0
     means = [1] * len(examples[0])
     for i in range(len(means)):
-        means[i] = np.mean([eg[i] for eg in examples])
+        means[i] = np.mean([eg[i] for eg in examples])#threshold(examples, i)#
         
     for eg in examples:
-        flag = eg[att] < means[att]
+        flag = eg[att] <= means[att]
         if not (flag) in tmp.keys():
             tmp[flag] = []
         tmp[flag].append(eg)
