@@ -147,7 +147,7 @@ def sampling(S, N):
     """
     random.seed()
     random.shuffle(S)
-    return S[0:N]
+    return sorted(S[0:N])
 
  
    
