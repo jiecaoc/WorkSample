@@ -131,8 +131,9 @@ def BootstrapSampling(examples):
         given the examples,
         give a BootstrapSampling.
     """
+    random.seed()
     K = len(examples)
-    print "K=", K
+    # print "K=", K
     egs = [1] * K
     for i in range(K):
         t = random.randint(0,K-1)
@@ -144,6 +145,7 @@ def sampling(S, N):
         given a list S,
         random pick up N elements of it
     """
+    random.seed()
     random.shuffle(S)
     return S[0:N]
 
