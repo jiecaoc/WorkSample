@@ -6,68 +6,105 @@ Created on Tue Oct 22 20:03:35 2013
 """
 import numpy as np
 import utilities as ut
-import operator as op
+#import operator as op
+# N use to decide the number of intervals used to split the feature internal
+N = 20
+
 
 class DTree:
-    """ Decision Tree Model """
-    def __init__(self, selectFun):
-        # this function will be use to split the data
-        # can be set as Information Gain, Gini Index etc
-        self.selectFunction = selectFun
-        self.attribute = ""
-        self.next = {}
-        self.data = []
-        self.label = ""
-        self.threshold = []
+    """ 2 - layer decesion tree """
+    def __init__(self, selectFun, features = range(33)):
+        self.threshold = 0
+        self.label = None
+        self.left = None
+        self.right = None
+        self.att = 0
+        self.selectAtt = selectFun 
+        self.features = features
     
-    def predict(self, example):
-        if self.next == {}:
+    def predict(self, eg, h = 2):
+        if h == 0:
             return self.label
-        att = self.attribute
-        flag = example[att] <= self.threshold[att]
-        if (flag not in self.next.keys()):
+        if eg[self.att] <= self.threshold:
+            dt = self.left
+        else:
+            dt = self.right
+        if dt.label == None:
             return self.label
-        dt = self.next[flag]
-        return dt.predict(example)
+        return dt.predict(eg, h - 1)
     
-    def printTree(self, block = ""):
-        if self.attribute == "":
-            return
-        print block, "#", self.attribute, "Attribute"
-        for v in self.next.keys():
-            print block, "|"
-            print block, "--", v,
-            if self.next[v].attribute == "":
-                print "-> Label:", self.next[v].label
-            else:
-                print "->"
-                self.next[v].printTree(block + "      ")
-            
-
-    
-    def training(self, examples, height = 1):
-        self.label = findMost(examples)
-        
-        means = [1] * len(examples[0])
-        for i in range(len(means)):
-            means[i] = np.mean([eg[i] for eg in examples])#threshold(examples, i)#
-        self.threshold = means
+    def training(self, egs, height = 2):
         if height <= 0:
             return
-        # select the attribute used in this node
-        self.attribute = self.selectFunction(examples)
-        # group the example based on the value on attribute
-        for eg in examples:
-            flag = (eg[self.attribute] <= means[self.attribute])
-            if not flag in self.next.keys():
-                self.next[flag] = DTree(self.selectFunction)
-            self.next[flag].data.append(eg)
-        # now we need to train the next level
-        for key in self.next.keys():
-            dt = self.next[key]
-            dt.training(dt.data, height - 1)
-            # after training, release the data space
-            dt.data = []
+        self.label = findMost(egs)
+        self.att = self.selectAtt(egs, self.features)
+        # print self.label
+        self.threshold = getThreshold(egs, self.att)
+        self.left = DTree(self.selectAtt)
+        self.left.training([eg for eg in egs if eg[self.att] <= self.threshold], height - 1)
+        self.right = DTree(self.selectAtt)
+        self.right.training([eg for eg in egs if eg[self.att] > self.threshold], height - 1)
+
+#class DTree:
+#    
+#    def __init__(self, selectFun):
+#        # this function will be use to split the data
+#        # can be set as Information Gain, Gini Index etc
+#        self.selectFunction = selectFun
+#        self.attribute = ""
+#        self.next = {}
+#        self.data = []
+#        self.label = ""
+#        self.threshold = []
+#    
+#    def predict(self, example):
+#        if self.next == {}:
+#            return self.label
+#        att = self.attribute
+#        flag = example[att] <= self.threshold[att]
+#        if (flag not in self.next.keys()):
+#            return self.label
+#        dt = self.next[flag]
+#        return dt.predict(example)
+#    
+#    def printTree(self, block = ""):
+#        if self.attribute == "":
+#            return
+#        print block, "#", self.attribute, "Attribute"
+#        for v in self.next.keys():
+#            print block, "|"
+#            print block, "--", v,
+#            if self.next[v].attribute == "":
+#                print "-> Label:", self.next[v].label
+#            else:
+#                print "->"
+#                self.next[v].printTree(block + "      ")
+#            
+
+    
+#    def training(self, examples, height = 1):
+#        self.label = findMost(examples)
+#        
+#        means = [1] * len(examples[0])
+#        for i in range(len(means)):
+#            means[i] = np.mean([eg[i] for eg in examples])#threshold(examples, i)#
+#        self.threshold = means
+#        if height <= 0:
+#            return
+#        # select the attribute used in this node
+#        self.attribute = self.selectFunction(examples)
+#        # group the example based on the value on attribute
+#        for eg in examples:
+#            flag = (eg[self.attribute] <= means[self.attribute])
+#            if not flag in self.next.keys():
+#                self.next[flag] = DTree(self.selectFunction)
+#            self.next[flag].data.append(eg)
+#        # now we need to train the next level
+#        for key in self.next.keys():
+#            dt = self.next[key]
+#            dt.training(dt.data, height - 1)
+#            # after training, release the data space
+#            dt.data = []
  
 
 class classifierBagging:
@@ -78,11 +115,11 @@ class classifierBagging:
         self.B = numberOfBases
         self.trees = [1] * self.B
         
-    def training(self, egs, depth = 2):
+    def training(self, egs):
         for i in range(self.B):
             dt = DTree(SelectAtt)
             samples = ut.BootstrapSampling(egs)
-            dt.training(samples, depth)
+            dt.training(samples)
             self.trees[i] = dt
     
     def predict(self, eg):
@@ -95,7 +132,7 @@ class classifierBagging:
 
 
 
-class RandomForest(classifierBagging):
+class RandomForest:
     """
         A simply implementation of 
         Random Forest
@@ -108,11 +145,18 @@ class RandomForest(classifierBagging):
     def training(self, egs, depth = 2):
         for i in range(self.B):
             featureSet = ut.sampling(range(len(egs[0]) - 1), self.m)
-            dt = DTree(lambda x: SelectAtt(x, featureSet))
+            # print featureSet
+            dt = DTree(SelectAtt, featureSet)
             samples = ut.BootstrapSampling(egs)
             dt.training(samples, depth)
             self.trees[i] = dt 
-        
+
+    def predict(self, eg):
+        """
+            given an example
+            make a prediction
+        """
+        return findMost([[dt.predict(eg)] for dt in self.trees])       
     
 def findMost(examples):
     tmp = {}
@@ -129,6 +173,8 @@ def H(examples):
     """
         calculate the entropy of examples
     """
+    if examples == []:
+        return 0
     totlen = len(examples) + .0
     count = {}
     count[1] = count[2] = 0
@@ -147,46 +193,34 @@ def Log2(x):
 def ent(p1, p2):
     return  -p1 * Log2(p1) - p2 * Log2(p2)
 
-def threshold(egs, att):
+
+def getThreshold(egs, att):
     """
         given egs and attribute,
         choose the `best` threshold for this att to construct binary decision tree
     """
-    egs = sorted(egs, key = op.itemgetter(att))
-    N = len(egs)
-    c1 = [0] * len(egs)
-    c = 0
-    for eg in egs:
-        if eg[0] == 1:
-            if c == 0:
-                c1[0] = 1
-            else:
-                c1[c] = c1[c-1] + 1
-        c = c + 1
-    info = [0] * len(egs)
-    for i in range(len(egs) - 1):
-        p1 = c1[i] / (i + 1)
-        p2 = 1 - c1[i]
-        q1 =  (c1[N-1] - c1[i]) / (N - i - 1)
-        q2 = 1 - q1
-        info[i] = -(i+1) / N * ent(p1, p2) - (N - i - 1) * ent(q1, q2)
-    return egs[ut.getMaxPos(info)[0]][att]
-
-def IG(examples, att):
-    tmp = {}
-    totlen = len(examples) + .0
-    means = [1] * len(examples[0])
-    for i in range(len(means)):
-        means[i] = np.mean([eg[i] for eg in examples])#threshold(examples, i)#
+    if egs == []:
+        return 0
+    tmp = [eg[att] for eg in egs]
+    mn = min(tmp)
+    delta = (max(tmp) - min(tmp)) / N
+    tmp = [ig(egs, att, i * delta + mn) for i in range(N)]
+    return ut.getMaxPos(tmp)[0] * delta + mn
         
-    for eg in examples:
-        flag = eg[att] <= means[att]
-        if not (flag) in tmp.keys():
-            tmp[flag] = []
-        tmp[flag].append(eg)
-    p = [(len(egs) / totlen * H(egs)) for egs in tmp.values()]
-    ans = sum(p)
-    return H(examples) - ans
+
+
+def ig(examples, att, threshold):
+    if examples == []:
+        return 0
+    totlen = len(examples) + .0
+    # threshold = getThreshold(examples, att)
+    #threshold(examples, i)#
+    left = [eg for eg in examples if eg[att] <= threshold]
+    right = [eg for eg in examples if eg[att] > threshold]
+    return H(examples) - len(left) / totlen * H(left) - len(right) / totlen * H(right)
+
+def IG(egs, att):
+    return ig(egs, att, getThreshold(egs, att))
 
 
     
