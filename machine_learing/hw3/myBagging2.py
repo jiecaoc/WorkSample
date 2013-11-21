@@ -3,6 +3,7 @@ import numpy as np
 import classes as cls
 import utilities as ut
 import sys
+import random
 
 def calcError(trainSet, testSet, numOfBase):
     """
@@ -67,8 +68,9 @@ if __name__ == '__main__':
     filename = sys.argv[1]
     B = map(lambda x: int(x), sys.argv[2:])
     egs = ut.importRawData(filename)
-    egs = ut.sampling(egs, len(egs))
-    errors = cross_Valid(egs, 4, B)
+    random.seed()
+    random.shuffle(egs)
+    errors = cross_Valid(egs, 10, B)
     
     tmp = getMeanStd(errors, B)
     means = tmp[0]
